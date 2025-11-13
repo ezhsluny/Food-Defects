@@ -11,12 +11,7 @@ _prev_analysis_frame = None
 def analyze_histogram_needs(img_array):
     global _prev_analysis, _prev_analysis_frame
     
-    #Если кадр похож на предыдущий, используем кэш
-    if _prev_analysis_frame is not None:
-        frame_diff = np.mean(np.abs(img_array - _prev_analysis_frame))
-        if frame_diff < 5:  
-            return _prev_analysis
-    
+
     mean_brightness = np.mean(img_array)
     std_brightness = np.std(img_array)
     
@@ -36,22 +31,29 @@ def analyze_histogram_needs(img_array):
     
     needs_brightness = mean_brightness < 50 or mean_brightness > 150 or std_brightness < 20
     
-    # Сохраняем в кэш
     result = (needs_brightness, needs_contrast, mean_brightness, std_brightness)
-    _prev_analysis = result
-    _prev_analysis_frame = img_array.copy()
     
     return result
 
 def advanced_preprocessing(img):
+    global  _prev_analysis_frame
     pil_img = img
 
     
     gray_img = pil_img.convert('L')
     img_array = np.array(gray_img)
     
+    #Если кадр похож на предыдущий, используем кэш
+    if _prev_analysis_frame is not None:
+        prew_array = _prev_analysis_frame.convert('L')
+        prew1_array = np.array(prew_array)
+        frame_diff = np.mean(np.abs(img_array - prew1_array))
+        if frame_diff < 5:  
+            return  _prev_analysis_frame
     
     needs_brightness, needs_contrast, mean_brightness, std_brightness = analyze_histogram_needs(img_array)
+
+
 
     if needs_brightness:
         if mean_brightness < 60:
@@ -103,6 +105,8 @@ def advanced_preprocessing(img):
             result_img = pil_img
     else:
         result_img = pil_img
+
+    _prev_analysis_frame = result_img
 
     return result_img
 
