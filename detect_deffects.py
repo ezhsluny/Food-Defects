@@ -285,7 +285,7 @@ if __name__ == "__main__":
     # Визуализация
     if 'visualization' in result:
         plt.figure(figsize=(12, 8))
-        plt.imshow(cv2.cvtColor(result['visualization'], cv2.COLOR_BGR2RGB))
+        plt.imshow(result['visualization'])
         plt.axis('off')
         plt.title("Результаты детекции дефектов яблок")
         plt.show()
