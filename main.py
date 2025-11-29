@@ -29,7 +29,7 @@ def ensure_rgb(image):
     """Гарантирует, что изображение в формате RGB для PIL и обработки"""
     if isinstance(image, np.ndarray):
         if len(image.shape) == 3 and image.shape[2] == 3:
-            if image[0, 0, 0] < image[0, 0, 2]:  # Если B < R, вероятно BGR
+            if image[0, 0, 0] < image[0, 0, 2]: 
                 return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
     elif isinstance(image, Image.Image):

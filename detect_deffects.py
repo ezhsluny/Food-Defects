@@ -73,7 +73,6 @@ class AppleDefectDetector:
         if self.model is None:
             raise ValueError("Модель не загружена. Сначала загрузите модель с помощью load_model()")
         
-        # Выполняем предсказание
         results = self.model.predict(
             source=image,
             conf=self.conf_threshold,
@@ -81,14 +80,11 @@ class AppleDefectDetector:
             verbose=False
         )
         
-        # Обрабатываем результаты
         detection_result = self._process_results(results[0])
-        
-        # Сохраняем результаты если требуется
+
         if save:
             self._save_results(detection_result, save_dir)
         
-        # Добавляем изображение с визуализацией если требуется
         if return_image:
             vis_image = self._visualize_detections(image, detection_result)
             detection_result['visualization'] = vis_image
@@ -105,7 +101,7 @@ class AppleDefectDetector:
         Returns:
             Dict: Структурированные результаты
         """
-        # Получаем bounding boxes
+
         boxes = result.boxes
         detection_result = {
             'original_image_shape': result.orig_shape,
@@ -119,11 +115,10 @@ class AppleDefectDetector:
         
         if boxes is not None and len(boxes) > 0:
             for box in boxes:
-                # Координаты bounding box
+
                 xyxy = box.xyxy[0].cpu().numpy()  # [x1, y1, x2, y2]
                 xywh = box.xywh[0].cpu().numpy()  # [x_center, y_center, width, height]
                 
-                # Дополнительная информация
                 confidence = box.conf[0].cpu().numpy()
                 class_id = int(box.cls[0].cpu().numpy())
                 class_name = self.class_names[class_id]
@@ -141,7 +136,6 @@ class AppleDefectDetector:
                 
                 detection_result['detections'].append(detection)
                 
-                # Обновляем статистику
                 detection_result['summary']['total_detections'] += 1
                 if class_name != 'no_def':
                     detection_result['summary']['defects_count'] += 1
@@ -162,7 +156,7 @@ class AppleDefectDetector:
         Returns:
             np.ndarray: Изображение с визуализацией
         """
-        # Загружаем изображение если нужно
+
         if isinstance(image, str):
             img = cv2.imread(image)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -175,7 +169,6 @@ class AppleDefectDetector:
             if len(img.shape) == 3 and img.shape[2] == 3:
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         
-        # Рисуем bounding boxes
         for detection in detection_result['detections']:
             bbox = detection['bbox']['xyxy']
             class_name = detection['class_name']
@@ -183,10 +176,8 @@ class AppleDefectDetector:
             
             color = self.class_colors.get(class_name, (255, 255, 255))
             
-            # Конвертируем координаты в целые числа
             x1, y1, x2, y2 = map(int, bbox)
-            
-            # Рисуем bounding box
+
             cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)        
         return img
     
@@ -200,10 +191,8 @@ class AppleDefectDetector:
         """
         os.makedirs(save_dir, exist_ok=True)
         
-        # Сохраняем JSON с результатами
         json_path = os.path.join(save_dir, "detection_results.json")
         with open(json_path, 'w', encoding='utf-8') as f:
-            # Конвертируем numpy типы в стандартные Python типы
             json_ready_result = json.loads(json.dumps(detection_result, default=str))
             json.dump(json_ready_result, f, indent=2, ensure_ascii=False)
         
@@ -233,7 +222,6 @@ class AppleDefectDetector:
         for class_name, count in summary['defects_by_class'].items():
             report += f"  - {class_name}: {count}\n"
         
-        # Анализ серьезности дефектов
         if summary['defects_by_class']['crit_def'] > 0:
             report += "\n⚠️ ВНИМАНИЕ: Обнаружены критические дефекты!\n"
         elif summary['defects_by_class']['mid_def'] > 0:
@@ -258,7 +246,6 @@ class AppleDefectDetector:
         else:
             print("Порог уверенности должен быть между 0.0 и 1.0")
 
-# Функция для быстрого создания детектора
 def create_detector(model_path: str = "best.pt", conf_threshold: float = 0.25) -> AppleDefectDetector:
     """
     Фабричная функция для создания детектора
@@ -273,16 +260,13 @@ def create_detector(model_path: str = "best.pt", conf_threshold: float = 0.25) -
     return AppleDefectDetector(model_path, conf_threshold)
 
 if __name__ == "__main__":
-    # Пример использования
+
     detector = AppleDefectDetector("apples_defects_yolov8.pt")
     
-    # Детекция на одном изображении
     result = detector.predict("test1.jpg", save=True, return_image=True)
-    
-    # Вывод сводки
+
     print(detector.get_detection_summary(result))
-    
-    # Визуализация
+
     if 'visualization' in result:
         plt.figure(figsize=(12, 8))
         plt.imshow(result['visualization'])
