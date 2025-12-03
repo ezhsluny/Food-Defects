@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Capture & Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Детекция дефектов яблок</h1>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="camera">Камера (реальное время)</button>
+            <button class="tab" data-tab="upload">Загрузка видео</button>
+        </div>
+        
+        <!-- Вкладка камеры -->
+        <div id="camera-tab" class="tab-content active">
+            <div class="video-container">
+                <div class="video-row">
+                    <div class="video-column">
+                        <h3>Исходное видео с камеры</h3>
+                        <video id="video" autoplay playsinline></video>
+                    </div>
+                    <div class="video-column">
+                        <h3>Результат обработки в реальном времени</h3>
+                        <div id="camera-result-container" class="result-container">
+                            <canvas id="camera-result-canvas"></canvas>
+                            <div id="camera-no-result" class="no-result">
+                                <p>Запустите обработку для просмотра результатов</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="start-camera" class="btn-primary">Включить камеру</button>
+                    <button id="start-processing" class="btn-success" disabled>Запустить обработку</button>
+                    <button id="stop-processing" class="btn-danger" disabled>Остановить обработку</button>
+                    <button id="stop-camera" class="btn-secondary" disabled>Выключить камеру</button>
+                </div>
+                
+                <div class="realtime-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">FPS:</span>
+                        <span id="fps-counter">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Яблок:</span>
+                        <span id="apples-counter">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Дефекты:</span>
+                        <span id="defects-counter">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Статус:</span>
+                        <span id="processing-status">Остановлено</span>
+                    </div>
+                </div>
+                
+                <div id="camera-status" class="status"></div>
+            </div>
+        </div>
+        
+        <!-- Вкладка загрузки -->
+        <div id="upload-tab" class="tab-content">
+            <div class="upload-area" id="upload-area">
+                <h3>Перетащите видео файл сюда или кликните для выбора</h3>
+                <p>Поддерживаемые форматы: MP4, WebM, MOV, AVI</p>
+                <input type="file" id="file-input" class="file-input" accept="video/*">
+            </div>
+            
+            <div class="video-container">
+                <div class="video-row">
+                    <div class="video-column">
+                        <h3>Исходное видео</h3>
+                        <video id="uploaded-video" controls class="hidden"></video>
+                    </div>
+                    <div class="video-column">
+                        <h3>Обработанное видео</h3>
+                        <div id="upload-result-container" class="result-container">
+                            <video id="processed-video" controls class="hidden"></video>
+                            <div id="upload-no-result" class="no-result">
+                                <p>Обработанное видео появится здесь</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="process-uploaded" class="btn-secondary" disabled>Обработать видео</button>
+                    <button id="download-video" class="btn-success" disabled>Скачать обработанное видео</button>
+                </div>
+                
+                <div id="upload-status" class="status"></div>
+                <div id="upload-results" class="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

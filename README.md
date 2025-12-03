@@ -29,6 +29,12 @@ pip install ultralytics opencv-python pillow numpy matplotlib streamlit flask
 python main.py
 ```
 
+Запуск с сайтом
+
+```bash
+python backend.py
+```
+
 ## 🏗️ Архитектура системы
 
 ### Основные модули
@@ -39,8 +45,22 @@ from detect_deffects import AppleDefectDetector
 from video_capture import advanced_preprocessing
 from make_bbox_apples import DetectorApples
 ```
+2. Модуль с сайтом (backend.py)
 
-2. Детекция яблок (make_bbox_apples.py)
+Этот модуль является основным серверным приложением, построенным на Flask. Он предоставляет REST API для взаимодействия с фронтенд-частью системы и координирует работу всех остальных модулей.
+
+API эндпоинты:
+
+`GET /` - главная страница с интерфейсом пользователя
+
+`POST /process-image` - обработка статических изображений
+
+`POST /process-video` - обработка видеофайлов
+
+`POST /process-realtime` - обработка кадров в реальном времени (для видеопотока)
+
+
+3. Детекция яблок (make_bbox_apples.py)
 python
 ```bash
 class DetectorApples:
@@ -50,7 +70,7 @@ class DetectorApples:
     def crop_bboxes(self, image):
         # Вырезает регионы с обнаруженными яблоками
 ```
-3. Детекция дефектов (detect_deffects.py)
+4. Детекция дефектов (detect_deffects.py)
 python
 ```bash
 class AppleDefectDetector:
@@ -58,7 +78,7 @@ class AppleDefectDetector:
         self.model = YOLO(model_path)
         self.class_names = ['crit_def', 'mid_def', 'small_def', 'no_def']
 ```
-4. Обработка видео (video_capture.py)
+5. Обработка видео (video_capture.py)
 python
 ```bash
 def advanced_preprocessing(img):
